@@ -21,7 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 export function ProfileDropdown() {
   const { logout, user } = useAuth();
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

@@ -18,7 +18,7 @@ export function NotificationDropdown() {
   const [hasUnread, setHasUnread] = React.useState(true);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full" onClick={() => setHasUnread(false)}>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
