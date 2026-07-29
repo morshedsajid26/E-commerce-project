@@ -167,84 +167,9 @@ export default function CustomerPrescriptionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <Toaster position="top-center" />
-
-      {/* HEADER SECTION */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 cursor-pointer group">
-            <div className="w-10 h-10 rounded-xl bg-medical-blue-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-all">
-              <PlusCircle className="text-white w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight leading-none">
-                S&S<span className="text-medical-blue-600">Pharmacy</span>
-              </h1>
-              <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase mt-1 block">
-                Prescription Upload Portal
-              </span>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200"
-            >
-              <ArrowLeft size={14} />
-              <span>Back to Shop</span>
-            </Link>
-
-            <button 
-              onClick={handleSignOut}
-              className="p-2 sm:px-3 sm:py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all border border-red-100 flex items-center gap-1.5 font-bold text-xs sm:text-sm"
-            >
-              <LogOut size={14} />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* MAIN GRID LAYOUT */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
-        {/* LEFT COLUMN: NAVIGATION SIDEBAR */}
-        <aside className="lg:col-span-1 space-y-3">
-          <div className="bg-white rounded-3xl border border-slate-100 p-4 shadow-sm space-y-1">
-            <div className="px-3 py-2 text-[10px] font-black text-slate-400 uppercase tracking-wider">
-              Account Menu
-            </div>
-            
-            <Link 
-              href="/profile"
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all border border-transparent"
-            >
-              <User size={16} />
-              <span>Personal Details</span>
-            </Link>
-
-            <Link 
-              href="/profile/orders"
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all border border-transparent"
-            >
-              <ShoppingBag size={16} />
-              <span>My Orders History</span>
-            </Link>
-
-            <Link 
-              href="/profile/prescriptions"
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-bold bg-medical-blue-50 text-medical-blue-700 transition-all border border-medical-blue-100/50"
-            >
-              <FileText size={16} />
-              <span>Prescription Orders</span>
-            </Link>
-          </div>
-        </aside>
-
-        {/* RIGHT COLUMN: PRESCRIPTION UPLOAD AND HISTORY */}
-        <section className="lg:col-span-3 space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8 shadow-xl shadow-slate-100/50">
           
           <div className="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-6">
@@ -449,9 +374,7 @@ export default function CustomerPrescriptionsPage() {
               </div>
             )}
           </div>
-        </section>
-      </main>
-
+    </div>
       {/* VIEW FILE MODAL */}
       {viewingFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">

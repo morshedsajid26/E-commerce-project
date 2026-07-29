@@ -22,13 +22,14 @@ import {
   Heart,
   FileText,
   Cpu,
+  User,
 } from "lucide-react";
 import { cn } from "../utils/cn";
 import { useUI } from "../context/UIContext";
 import { useAuth } from "../context/AuthContext";
 import { getPendingOrdersCountAction } from "@/lib/actions/online-admin.actions";
 
-const menuItems = [
+const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
   { icon: ShoppingCart, label: "Sales (POS)", path: "/sales" },
   { icon: ShoppingBag, label: "Online Orders", path: "/online-orders" },
@@ -39,6 +40,12 @@ const menuItems = [
   { icon: CreditCard, label: "Due Management", path: "/dues" },
   { icon: AlertTriangle, label: "Low Stock", path: "/low-stock" },
   { icon: BarChart3, label: "Reports", path: "/reports" },
+];
+
+const customerMenuItems = [
+  { icon: User, label: "Account Overview", path: "/profile" },
+  { icon: ShoppingBag, label: "My Orders", path: "/profile/orders" },
+  { icon: Settings, label: "Profile Settings", path: "/profile/settings" },
 ];
 
 export function Sidebar() {
@@ -110,7 +117,7 @@ export function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 space-y-1 ">
-          {menuItems.map((item) => {
+          {(user?.type === "admin" ? adminMenuItems : customerMenuItems).map((item) => {
             const isActive = pathname === item.path;
             return (
               <Link

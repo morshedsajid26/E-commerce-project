@@ -39,9 +39,9 @@ export function Navbar() {
       {/* Brand Logo for Mobile */}
       <div className="lg:hidden flex items-center gap-2 ml-2">
          <div className="w-8 h-8 rounded-lg bg-medical-blue-600 flex items-center justify-center">
-            <span className="text-white font-black text-xs">P</span>
+            <span className="text-white font-black text-xs">G</span>
          </div>
-         <span className="font-black text-lg text-slate-900 tracking-tight">PHARMA</span>
+         <span className="font-black text-lg text-slate-900 tracking-tight">GADGETS <span className="text-medical-blue-600">BD</span></span>
       </div>
 
       {/* spacer to push profile details to the far right */}
