@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Minus, Plus, ShoppingCart, Check, ShieldCheck, Truck, ChevronRight } from 'lucide-react';
+import { Minus, Plus, ShoppingCart, Check, ShieldCheck, Truck, ChevronRight, ArrowLeftRight } from 'lucide-react';
 import { Button } from '@/components/atoms/button';
 import { useAppStore } from '@/store';
 import { ProductCard } from '@/components/molecules/product-card';
@@ -19,6 +19,9 @@ export function ProductDetailsClient({ product, relatedProducts }) {
 
   const addToCart = useAppStore(state => state.addToCart);
   const setCartOpen = useAppStore(state => state.setCartOpen);
+  const toggleCompare = useAppStore(state => state.toggleCompare);
+  const compareIds = useAppStore(state => state.compare);
+  const isCompared = compareIds.includes(product.id);
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
@@ -32,7 +35,7 @@ export function ProductDetailsClient({ product, relatedProducts }) {
   };
 
   // Pricing logic
-  const hasDiscount = product.discount && product.discount > 0;
+  const hasDiscount = (product.discount || 0) > 0;
   const displayOldPrice = hasDiscount 
     ? (product.price / (1 - product.discount / 100))
     : product.oldPrice;
@@ -150,6 +153,16 @@ export function ProductDetailsClient({ product, relatedProducts }) {
               </Button>
               <Button onClick={handleAddToCart} variant="outline" className="flex-1 border-emerald-500 text-emerald-600 hover:bg-emerald-50 font-bold h-12 text-base rounded-xl">
                 Add to Cart
+              </Button>
+              <Button 
+                onClick={() => toggleCompare(product.id)}
+                variant="outline" 
+                className={`w-12 h-12 p-0 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shrink-0 ${
+                  isCompared ? 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:text-blue-700' : ''
+                }`}
+                title={isCompared ? "Remove from Compare" : "Add to Compare"}
+              >
+                <ArrowLeftRight className="w-5 h-5" />
               </Button>
             </div>
 

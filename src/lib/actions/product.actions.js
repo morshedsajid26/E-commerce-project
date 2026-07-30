@@ -26,6 +26,24 @@ export async function getProducts(params = {}) {
   }
 }
 
+export async function getProductsByIds(ids) {
+  try {
+    if (!ids || ids.length === 0) return [];
+    
+    const products = await prisma.product.findMany({
+      where: {
+        id: { in: ids }
+      }
+    });
+    
+    // Maintain the order of IDs if needed, but since it's just compare, returning the result is fine.
+    return products;
+  } catch (error) {
+    console.error("Error fetching products by ids:", error);
+    return [];
+  }
+}
+
 export async function getLowStockProducts() {
   try {
     return await prisma.product.findMany({

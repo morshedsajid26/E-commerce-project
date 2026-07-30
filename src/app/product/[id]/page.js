@@ -2,6 +2,11 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/organisms/navbar";
 import { ProductDetailsClient } from "@/components/organisms/product-details-client";
+import { Sidebar } from "@/components/organisms/sidebar";
+import { CartDrawer } from "@/components/organisms/cart-drawer";
+import { WishlistDrawer } from "@/components/organisms/wishlist-drawer";
+import { SearchModal } from "@/components/organisms/search-modal";
+import { BackToTop } from "@/components/molecules/back-to-top";
 import dynamicNext from 'next/dynamic';
 
 const Footer = dynamicNext(() => import('@/components/organisms/footer').then(mod => mod.Footer), { ssr: true });
@@ -74,6 +79,11 @@ export default async function ProductPage({ params }) {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Navbar />
+      <Sidebar />
+      <CartDrawer />
+      <WishlistDrawer />
+      <SearchModal />
+      <BackToTop />
       
       <main className="flex-1 pt-24 md:pt-36 pb-16">
         <div className="max-w-[95%] xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">

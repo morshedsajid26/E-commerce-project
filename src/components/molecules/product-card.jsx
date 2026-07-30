@@ -11,7 +11,7 @@ export function ProductCard({ product, className }) {
   const setCartOpen = useAppStore(state => state.setCartOpen);
 
   // Calculate discount amount and original price if discount exists
-  const hasDiscount = product.discount && product.discount > 0;
+  const hasDiscount = (product.discount || 0) > 0;
   
   const displayOldPrice = hasDiscount 
     ? (product.price / (1 - product.discount / 100))
@@ -76,8 +76,32 @@ export function ProductCard({ product, className }) {
           >
             Shop Now
           </Link>
+          
           <button 
             type="button"
+            title="Compare"
+            className={cn(
+              "h-[36px] w-[36px] flex-shrink-0 flex items-center justify-center border rounded-full transition-colors",
+              useAppStore(state => state.compare).includes(product.id)
+                ? "bg-blue-600 text-white border-blue-600"
+                : "text-slate-600 border-slate-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
+            )}
+            onClick={(e) => {
+              e.preventDefault();
+              useAppStore.getState().toggleCompare(product.id);
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m16 3 4 4-4 4"/>
+              <path d="M20 7H4"/>
+              <path d="m8 21-4-4 4-4"/>
+              <path d="M4 17h16"/>
+            </svg>
+          </button>
+
+          <button 
+            type="button"
+            title="Add to Cart"
             className="h-[36px] w-[36px] flex-shrink-0 flex items-center justify-center text-slate-600 border border-slate-200 rounded-full hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-colors"
             onClick={(e) => {
               e.preventDefault();
