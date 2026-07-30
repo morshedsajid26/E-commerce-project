@@ -29,13 +29,13 @@ export default async function Home() {
     description: `${p.category} product from ${p.company}`,
     price: p.sellingPrice,
     oldPrice: p.sellingPrice * 1.1,
-    discount: 10,
+    discount: p.discount || 0,
     rating: "4.5",
     reviews: 10,
     image: p.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&q=80",
     category: p.category,
     brand: p.brand || p.company,
-    isNew: true,
+    isNew: p.isNew ?? false,
     stock: p.stock,
     delivery: "Free Delivery in Bangladesh",
   }));
@@ -51,7 +51,7 @@ export default async function Home() {
       <SearchModal />
       <BackToTop />
 
-      <main className="flex-1 pt-24">
+      <main className="flex-1 pt-24 md:pt-36">
         <HeroSection />
         
         <FeaturedCategories />

@@ -5,7 +5,7 @@ import { WishlistDrawer } from "@/components/organisms/wishlist-drawer";
 import { SearchModal } from "@/components/organisms/search-modal";
 import { BackToTop } from "@/components/molecules/back-to-top";
 import dynamic from 'next/dynamic';
-import { ShieldCheck, Truck, Clock, Sparkles } from "lucide-react";
+import { ShieldCheck, Truck, Clock, Sparkles, Calendar } from "lucide-react";
 
 const Footer = dynamic(() => import('@/components/organisms/footer').then(mod => mod.Footer), { ssr: true });
 
@@ -60,7 +60,7 @@ export default function PreOrderPage() {
       <SearchModal />
       <BackToTop />
 
-      <main className="flex-1 pt-24 pb-16">
+      <main className="flex-1 pt-24 md:pt-36 pb-16">
         
         {/* Hero Section */}
         <div className="relative py-16 md:py-24 bg-muted/30 border-y border-border mb-16 overflow-hidden">

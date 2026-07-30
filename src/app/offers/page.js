@@ -54,7 +54,7 @@ export default function OffersPage() {
       <SearchModal />
       <BackToTop />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pt-24 md:pt-36 pb-20">
         
         {/* Hero Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">

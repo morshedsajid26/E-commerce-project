@@ -36,7 +36,10 @@ model Product {
   stock         Int        @default(0)
   warranty      String?
   image         String?
+  gallery       String[]   @default([])
   status        String     @default("In Stock") // "In Stock", "Low", "Out of Stock"
+  isNew         Boolean    @default(true)
+  discount      Float      @default(0)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   SaleItem      SaleItem[]

@@ -61,7 +61,7 @@ export default function ComparePage() {
       <SearchModal />
       <BackToTop />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pt-24 md:pt-36 pb-20">
         
         <div className="max-w-[95%] xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
           

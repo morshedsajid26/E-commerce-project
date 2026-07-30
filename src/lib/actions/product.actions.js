@@ -46,6 +46,8 @@ export async function addProduct(data) {
       purchasePrice: parseFloat(data.purchasePrice),
       sellingPrice: parseFloat(data.sellingPrice),
       stock: parseInt(data.stock, 10),
+      discount: parseFloat(data.discount || 0),
+      gallery: data.gallery || [],
     };
     
     const product = await prisma.product.create({
@@ -71,6 +73,8 @@ export async function updateProduct(id, data) {
       purchasePrice: parseFloat(data.purchasePrice),
       sellingPrice: parseFloat(data.sellingPrice),
       stock: parseInt(data.stock, 10),
+      discount: parseFloat(data.discount || 0),
+      gallery: data.gallery || [],
     };
 
     const product = await prisma.product.update({

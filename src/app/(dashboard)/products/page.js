@@ -46,7 +46,10 @@ export default function ProductsPage() {
       sellingPrice: 0,
       stock: 0,
       warranty: "",
-      image: ""
+      image: "",
+      gallery: [],
+      isNew: true,
+      discount: 0
     });
     setIsModalOpen(true);
   }, []);
@@ -264,9 +267,31 @@ export default function ProductsPage() {
               onChange={(e) => setFormData({...formData, warranty: e.target.value})}
             />
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <InputField 
+              label="Discount (%)" 
+              type="number" 
+              step="1"
+              min="0"
+              max="100"
+              value={formData.discount || 0} 
+              onChange={(e) => setFormData({...formData, discount: parseFloat(e.target.value)})}
+            />
+            <div className="flex items-center mt-6">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="w-5 h-5 rounded border-slate-300 text-medical-blue-600 focus:ring-medical-blue-500"
+                  checked={formData.isNew ?? true} 
+                  onChange={(e) => setFormData({...formData, isNew: e.target.checked})}
+                />
+                <span className="text-sm font-medium text-slate-700">Mark as New Product</span>
+              </label>
+            </div>
+          </div>
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-1.5">
-              Product Image
+              Primary Image
             </label>
             {formData.image ? (
               <div className="relative w-full h-13 rounded-lg overflow-hidden border border-slate-200 group bg-slate-50 flex items-center justify-between px-3">
@@ -276,7 +301,7 @@ export default function ProductsPage() {
                     alt="Preview" 
                     className="w-8 h-8 object-cover rounded-lg border border-slate-100 shrink-0"
                   />
-                  <span className="text-xs font-semibold text-slate-600 truncate">Image Selected</span>
+                  <span className="text-xs font-semibold text-slate-600 truncate">Primary Image Selected</span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <button
@@ -303,7 +328,7 @@ export default function ProductsPage() {
                 className="w-full h-13 rounded-lg border border-dashed border-slate-200 hover:border-medical-blue-400 bg-slate-50/50 hover:bg-medical-blue-50/10 flex items-center justify-center gap-2 cursor-pointer transition-all group px-4"
               >
                 <Plus size={16} className="text-slate-400 group-hover:text-medical-blue-600" />
-                <span className="text-xs text-slate-500 font-medium">Upload Image from PC</span>
+                <span className="text-xs text-slate-500 font-medium">Upload Primary Image</span>
               </div>
             )}
             <input 
@@ -314,13 +339,61 @@ export default function ProductsPage() {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  if (file.size > 2 * 1024 * 1024) {
-                    toast.error("Image file size should be less than 2MB");
-                    return;
-                  }
                   const reader = new FileReader();
                   reader.onloadend = () => {
                     setFormData({ ...formData, image: reader.result });
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-700 block mb-1.5">
+              Gallery Images (Optional)
+            </label>
+            <div className="flex flex-col gap-2">
+              {(formData.gallery || []).map((imgUrl, idx) => (
+                <div key={idx} className="relative w-full h-13 rounded-lg overflow-hidden border border-slate-200 group bg-slate-50 flex items-center justify-between px-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img src={imgUrl} alt="Gallery Preview" className="w-8 h-8 object-cover rounded-lg border border-slate-100 shrink-0" />
+                    <span className="text-xs font-semibold text-slate-600 truncate">Gallery Image {idx + 1}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newGallery = [...formData.gallery];
+                      newGallery.splice(idx, 1);
+                      setFormData({ ...formData, gallery: newGallery });
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+              
+              <div 
+                onClick={() => document.getElementById('gallery-upload-input').click()}
+                className="w-full h-13 rounded-lg border border-dashed border-slate-200 hover:border-medical-blue-400 bg-slate-50/50 hover:bg-medical-blue-50/10 flex items-center justify-center gap-2 cursor-pointer transition-all group px-4"
+              >
+                <Plus size={16} className="text-slate-400 group-hover:text-medical-blue-600" />
+                <span className="text-xs text-slate-500 font-medium">Add Gallery Image</span>
+              </div>
+            </div>
+            <input 
+              id="gallery-upload-input"
+              type="file" 
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    const currentGallery = formData.gallery || [];
+                    setFormData({ ...formData, gallery: [...currentGallery, reader.result] });
                   };
                   reader.readAsDataURL(file);
                 }

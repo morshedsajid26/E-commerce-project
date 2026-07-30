@@ -5,21 +5,37 @@ import { CartDrawer } from "@/components/organisms/cart-drawer";
 import { WishlistDrawer } from "@/components/organisms/wishlist-drawer";
 import { SearchModal } from "@/components/organisms/search-modal";
 import { BackToTop } from "@/components/molecules/back-to-top";
-import { ProductGridSection } from "@/components/organisms/product-grid-section";
+import { CategoryFilterClient } from "@/components/organisms/category-filter-client";
 import dynamicNext from 'next/dynamic';
 
 const Footer = dynamicNext(() => import('@/components/organisms/footer').then(mod => mod.Footer), { ssr: true });
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Shop All Gadgets | GADGETS BD",
-  description: "Browse our complete collection of smartphones, laptops, and premium gadgets.",
-};
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const categoryName = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return {
+    title: `${categoryName} | GADGETS BD`,
+    description: `Shop the best ${categoryName} at GADGETS BD.`,
+  };
+}
 
-export default async function ShopPage() {
+export default async function CategoryPage({ params }) {
+  const { slug } = await params;
+  const searchTerm = slug.replace(/-/g, ' ');
+  const categoryName = searchTerm.replace(/\b\w/g, l => l.toUpperCase());
+
+  // Search products where category, brand, or name contains the search term
   const dbProducts = await prisma.product.findMany({
-    orderBy: { name: 'asc' },
+    where: {
+      OR: [
+        { category: { contains: searchTerm, mode: 'insensitive' } },
+        { brand: { contains: searchTerm, mode: 'insensitive' } },
+        { name: { contains: searchTerm, mode: 'insensitive' } },
+      ],
+    },
+    orderBy: { createdAt: 'desc' },
   });
 
   const products = dbProducts.map(p => ({
@@ -49,12 +65,12 @@ export default async function ShopPage() {
       <BackToTop />
 
       <main className="flex-1 pt-24 md:pt-36 pb-16">
-        <ProductGridSection 
-          title="All Products" 
-          subtitle="Explore our full catalog of premium gadgets and accessories."
-          products={products} 
-          limit={100} 
-        />
+        <div className="max-w-[95%] xl:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+          <CategoryFilterClient 
+            initialProducts={products} 
+            categoryName={categoryName} 
+          />
+        </div>
       </main>
       
       <Footer />

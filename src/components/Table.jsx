@@ -186,19 +186,42 @@ export function Table({ TableHeads, TableRows, headClass, tableClass, children, 
             </button>
             
             <div className="flex items-center gap-1">
-                {table.getPageOptions().map((pageIdx) => (
-                    <button
-                        key={pageIdx}
-                        className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
-                            table.getState().pagination.pageIndex === pageIdx
-                                ? "bg-medical-blue-600 text-white shadow-md shadow-medical-blue-600/20"
-                                : "bg-white text-slate-600 border border-transparent hover:border-slate-200 hover:bg-slate-50"
-                        }`}
-                        onClick={() => table.setPageIndex(pageIdx)}
-                    >
-                        {pageIdx + 1}
-                    </button>
-                ))}
+                {(() => {
+                    const totalPages = table.getPageCount();
+                    const currentPageIdx = table.getState().pagination.pageIndex;
+                    let pages = [];
+
+                    if (totalPages <= 7) {
+                        pages = Array.from({ length: totalPages }, (_, i) => i);
+                    } else {
+                        if (currentPageIdx <= 3) {
+                            pages = [0, 1, 2, 3, 4, '...', totalPages - 3, totalPages - 2, totalPages - 1];
+                        } else if (currentPageIdx >= totalPages - 4) {
+                            pages = [0, 1, 2, '...', totalPages - 5, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1];
+                        } else {
+                            pages = [0, 1, 2, '...', currentPageIdx - 1, currentPageIdx, currentPageIdx + 1, '...', totalPages - 3, totalPages - 2, totalPages - 1];
+                        }
+                    }
+
+                    return pages.map((pageIdx, i) => {
+                        if (pageIdx === '...') {
+                            return <span key={`ellipsis-${i}`} className="px-2 font-bold text-slate-400 tracking-widest">...</span>;
+                        }
+                        return (
+                            <button
+                                key={pageIdx}
+                                className={`w-9 h-9 rounded-lg text-sm font-bold transition-all ${
+                                    currentPageIdx === pageIdx
+                                        ? "bg-medical-blue-600 text-white shadow-md shadow-medical-blue-600/20"
+                                        : "bg-white text-slate-600 border border-transparent hover:border-slate-200 hover:bg-slate-50"
+                                }`}
+                                onClick={() => table.setPageIndex(pageIdx)}
+                            >
+                                {pageIdx + 1}
+                            </button>
+                        );
+                    });
+                })()}
             </div>
 
             <button
