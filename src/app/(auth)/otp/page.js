@@ -30,7 +30,7 @@ export default function OtpPage() {
       toast.success("Code verified! Please set a new password.");
       router.push("/reset-password");
     } else {
-      toast.success("Email verified successfully! Welcome to PremiumStore.");
+      toast.success("Email verified successfully! Welcome to GADGETSBD.");
       router.push("/");
     }
   };

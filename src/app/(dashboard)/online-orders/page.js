@@ -21,16 +21,17 @@ import toast, { Toaster } from "react-hot-toast";
 import { 
   getOnlineOrdersAction, 
   approveOnlineOrderAction, 
-  rejectOnlineOrderAction 
+  rejectOnlineOrderAction,
+  updateOrderStatusAction
 } from "@/lib/actions/online-admin.actions";
 
 export default function OnlineOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("PENDING"); // "PENDING" | "APPROVED" | "REJECTED" | "ALL"
+  const [activeTab, setActiveTab] = useState("PENDING"); // "PENDING" | "APPROVED" | "SHIPPED" | "DELIVERED" | "REJECTED" | "ALL"
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [confirmAction, setConfirmAction] = useState({ type: null, orderId: null, orderNo: "" });
+  const [confirmAction, setConfirmAction] = useState({ type: null, orderId: null, orderNo: "", newStatus: null });
 
   // Fetch orders from server action
   const loadOrders = async () => {
@@ -62,6 +63,11 @@ export default function OnlineOrdersPage() {
     setConfirmAction({ type: "REJECT", orderId, orderNo: orderNum });
   };
 
+  const handleUpdateStatus = (orderId, newStatus, orderNo = "") => {
+    const orderNum = orderNo || orders.find(o => o.id === orderId)?.orderNo || selectedOrder?.orderNo || "Order";
+    setConfirmAction({ type: "UPDATE_STATUS", orderId, orderNo: orderNum, newStatus });
+  };
+
   // Execution actions
   const executeApprove = async (orderId) => {
     setConfirmAction({ type: null, orderId: null, orderNo: "" });
@@ -81,7 +87,7 @@ export default function OnlineOrdersPage() {
   };
 
   const executeReject = async (orderId) => {
-    setConfirmAction({ type: null, orderId: null, orderNo: "" });
+    setConfirmAction({ type: null, orderId: null, orderNo: "", newStatus: null });
     setActionLoading(true);
     try {
       const result = await rejectOnlineOrderAction(orderId);
@@ -92,6 +98,23 @@ export default function OnlineOrdersPage() {
       }
     } catch (error) {
       toast.error(error.message || "Failed to reject order");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const executeUpdateStatus = async (orderId, newStatus) => {
+    setConfirmAction({ type: null, orderId: null, orderNo: "", newStatus: null });
+    setActionLoading(true);
+    try {
+      const result = await updateOrderStatusAction(orderId, newStatus);
+      if (result.success) {
+        toast.success(`Order status updated to ${newStatus}`);
+        setSelectedOrder(null);
+        loadOrders();
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to update status");
     } finally {
       setActionLoading(false);
     }
@@ -124,12 +147,12 @@ export default function OnlineOrdersPage() {
       </div>
 
       {/* FILTER TABS */}
-      <div className="flex border-b border-slate-200 pb-px">
-        {["PENDING", "APPROVED", "REJECTED", "ALL"].map((tab) => (
+      <div className="flex border-b border-slate-200 pb-px overflow-x-auto">
+        {["PENDING", "APPROVED", "SHIPPED", "DELIVERED", "REJECTED", "ALL"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-3.5 font-bold text-sm border-b-2 -mb-px transition-all relative ${
+            className={`px-6 py-3.5 font-bold text-sm border-b-2 -mb-px transition-all relative whitespace-nowrap ${
               activeTab === tab 
                 ? "border-medical-blue-600 text-medical-blue-600" 
                 : "border-transparent text-slate-500 hover:text-slate-700"
@@ -205,6 +228,16 @@ export default function OnlineOrdersPage() {
                           <Check size={12} />
                           <span>Approved</span>
                         </span>
+                      ) : order.status === "SHIPPED" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-150">
+                          <Package size={12} />
+                          <span>Shipped</span>
+                        </span>
+                      ) : order.status === "DELIVERED" ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-700 border border-green-150">
+                          <Check size={12} />
+                          <span>Delivered</span>
+                        </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-150">
                           <X size={12} />
@@ -239,6 +272,24 @@ export default function OnlineOrdersPage() {
                               <X size={16} />
                             </button>
                           </>
+                        )}
+                        {order.status === "APPROVED" && (
+                          <button
+                            onClick={() => handleUpdateStatus(order.id, "SHIPPED")}
+                            className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors font-bold text-xs flex items-center gap-1"
+                            title="Mark as Shipped"
+                          >
+                            <Package size={14} /> Ship
+                          </button>
+                        )}
+                        {order.status === "SHIPPED" && (
+                          <button
+                            onClick={() => handleUpdateStatus(order.id, "DELIVERED")}
+                            className="p-1.5 rounded-lg bg-green-50 hover:bg-green-100 text-green-600 transition-colors font-bold text-xs flex items-center gap-1"
+                            title="Mark as Delivered"
+                          >
+                            <Check size={14} /> Deliver
+                          </button>
                         )}
                       </div>
                     </td>
@@ -407,6 +458,26 @@ export default function OnlineOrdersPage() {
                     </button>
                   </>
                 )}
+                {selectedOrder.status === "APPROVED" && (
+                  <button 
+                    onClick={() => handleUpdateStatus(selectedOrder.id, "SHIPPED")}
+                    disabled={actionLoading}
+                    className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-md shadow-blue-600/10 disabled:opacity-50 inline-flex items-center gap-1.5"
+                  >
+                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Package size={16} />}
+                    <span>Mark as Shipped</span>
+                  </button>
+                )}
+                {selectedOrder.status === "SHIPPED" && (
+                  <button 
+                    onClick={() => handleUpdateStatus(selectedOrder.id, "DELIVERED")}
+                    disabled={actionLoading}
+                    className="px-5 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-sm transition-all shadow-md shadow-green-600/10 disabled:opacity-50 inline-flex items-center gap-1.5"
+                  >
+                    {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check size={16} />}
+                    <span>Mark as Delivered</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -418,29 +489,37 @@ export default function OnlineOrdersPage() {
         <div className="fixed inset-0 z-[60] overflow-hidden flex items-center justify-center p-4">
           <div 
             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
-            onClick={() => setConfirmAction({ type: null, orderId: null, orderNo: "" })} 
+            onClick={() => setConfirmAction({ type: null, orderId: null, orderNo: "", newStatus: null })} 
           />
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl z-10 animate-in zoom-in-95 duration-200 border border-slate-100">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${
-              confirmAction.type === "APPROVE" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+              confirmAction.type === "APPROVE" ? "bg-emerald-50 text-emerald-600" : 
+              confirmAction.type === "UPDATE_STATUS" ? "bg-blue-50 text-blue-600" :
+              "bg-red-50 text-red-600"
             }`}>
-              {confirmAction.type === "APPROVE" ? <Check size={24} /> : <X size={24} />}
+              {confirmAction.type === "APPROVE" ? <Check size={24} /> : 
+               confirmAction.type === "UPDATE_STATUS" ? <Package size={24} /> :
+               <X size={24} />}
             </div>
             
             <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
-              {confirmAction.type === "APPROVE" ? "Approve Online Order" : "Reject Online Order"}
+              {confirmAction.type === "APPROVE" ? "Approve Online Order" : 
+               confirmAction.type === "UPDATE_STATUS" ? `Update Status to ${confirmAction.newStatus}` :
+               "Reject Online Order"}
             </h3>
             
             <p className="text-xs text-slate-500 mt-2 leading-relaxed">
               {confirmAction.type === "APPROVE" 
                 ? `Are you sure you want to approve order ${confirmAction.orderNo}? This will automatically deduct stock and record a standard POS sale.` 
+                : confirmAction.type === "UPDATE_STATUS"
+                ? `Are you sure you want to mark order ${confirmAction.orderNo} as ${confirmAction.newStatus}?`
                 : `Are you sure you want to reject order ${confirmAction.orderNo}?`
               }
             </p>
 
             <div className="flex items-center gap-3 mt-6">
               <button
-                onClick={() => setConfirmAction({ type: null, orderId: null, orderNo: "" })}
+                onClick={() => setConfirmAction({ type: null, orderId: null, orderNo: "", newStatus: null })}
                 className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition-all"
               >
                 Cancel
@@ -449,6 +528,8 @@ export default function OnlineOrdersPage() {
                 onClick={() => {
                   if (confirmAction.type === "APPROVE") {
                     executeApprove(confirmAction.orderId);
+                  } else if (confirmAction.type === "UPDATE_STATUS") {
+                    executeUpdateStatus(confirmAction.orderId, confirmAction.newStatus);
                   } else {
                     executeReject(confirmAction.orderId);
                   }
@@ -456,10 +537,14 @@ export default function OnlineOrdersPage() {
                 className={`flex-1 py-2.5 rounded-xl text-white font-bold text-xs sm:text-sm transition-all shadow-md ${
                   confirmAction.type === "APPROVE" 
                     ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/10" 
+                    : confirmAction.type === "UPDATE_STATUS"
+                    ? "bg-blue-600 hover:bg-blue-700 shadow-blue-600/10"
                     : "bg-red-600 hover:bg-red-700 shadow-red-600/10"
                 }`}
               >
-                {confirmAction.type === "APPROVE" ? "Yes, Approve" : "Yes, Reject"}
+                {confirmAction.type === "APPROVE" ? "Yes, Approve" : 
+                 confirmAction.type === "UPDATE_STATUS" ? "Yes, Update" :
+                 "Yes, Reject"}
               </button>
             </div>
           </div>

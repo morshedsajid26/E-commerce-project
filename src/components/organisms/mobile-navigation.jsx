@@ -29,7 +29,7 @@ export function MobileNavigation() {
         </SheetTrigger>
         <SheetContent side="left" className="w-[300px] sm:w-[400px]">
           <SheetHeader className="text-left">
-            <SheetTitle className="text-xl font-bold tracking-tight">PremiumStore</SheetTitle>
+            <SheetTitle className="text-xl font-bold tracking-tight">GADGETSBD</SheetTitle>
           </SheetHeader>
           <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4">
             <Accordion type="single" collapsible className="w-full">

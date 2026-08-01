@@ -16,12 +16,14 @@ import {
   LogOut,
   FileText,
   Package,
-  Calendar,
-  CreditCard,
   Eye,
-  X
+  X,
+  Truck,
+  Calendar,
+  CreditCard
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import { Table } from "@/components/Table";
 import { 
   getCustomerOrdersAction
 } from "@/lib/actions/online-customer.actions";
@@ -57,25 +59,69 @@ function OrderDetailsModal({ order, onClose }) {
           
           {/* Status & Dates */}
           <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-2">
-              {order.status === "PENDING" ? (
-                <span className="inline-flex items-center gap-1.5 font-black text-xs text-yellow-600 bg-yellow-50 px-3 py-1.5 rounded-full border border-yellow-200">
-                  <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-                  <span>Pending Approval</span>
-                </span>
-              ) : order.status === "APPROVED" ? (
-                <span className="inline-flex items-center gap-1.5 font-black text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
-                  <CheckCircle size={14} className="text-emerald-500" />
-                  <span>Approved</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 font-black text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
-                  <XCircle size={14} className="text-red-500" />
-                  <span>Rejected</span>
-                </span>
+            <div className="w-full">
+              {/* Stepper for Order Tracking */}
+              <div className="relative flex items-center justify-between w-full max-w-xl mx-auto my-4 before:absolute before:inset-0 before:top-1/2 before:-translate-y-1/2 before:h-1 before:w-full before:bg-slate-100 before:z-0">
+                {/* Pending Step */}
+                <div className="relative z-10 flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 ${
+                    order.status === "PENDING" || order.status === "APPROVED" || order.status === "SHIPPED" || order.status === "DELIVERED"
+                      ? "bg-medical-blue-600 border-medical-blue-100 text-white"
+                      : "bg-white border-slate-200 text-slate-300"
+                  }`}>
+                    <Clock size={14} className={order.status === "PENDING" ? "animate-pulse" : ""} />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Placed</span>
+                </div>
+
+                {/* Approved Step */}
+                <div className="relative z-10 flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 ${
+                    order.status === "APPROVED" || order.status === "SHIPPED" || order.status === "DELIVERED"
+                      ? "bg-medical-blue-600 border-medical-blue-100 text-white"
+                      : "bg-white border-slate-200 text-slate-300"
+                  }`}>
+                    <CheckCircle size={14} />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Confirmed</span>
+                </div>
+
+                {/* Shipped Step */}
+                <div className="relative z-10 flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 ${
+                    order.status === "SHIPPED" || order.status === "DELIVERED"
+                      ? "bg-medical-blue-600 border-medical-blue-100 text-white"
+                      : "bg-white border-slate-200 text-slate-300"
+                  }`}>
+                    <Truck size={14} className={order.status === "SHIPPED" ? "animate-bounce" : ""} />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Shipped</span>
+                </div>
+
+                {/* Delivered Step */}
+                <div className="relative z-10 flex flex-col items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center border-4 ${
+                    order.status === "DELIVERED"
+                      ? "bg-medical-blue-600 border-medical-blue-100 text-white"
+                      : "bg-white border-slate-200 text-slate-300"
+                  }`}>
+                    <CheckCircle size={14} />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Delivered</span>
+                </div>
+              </div>
+
+              {order.status === "REJECTED" && (
+                <div className="mt-4 flex justify-center">
+                  <span className="inline-flex items-center gap-1.5 font-black text-xs text-red-600 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
+                    <XCircle size={14} className="text-red-500" />
+                    <span>Order Rejected/Cancelled</span>
+                  </span>
+                </div>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            
+            <div className="flex w-full justify-end items-center gap-2 text-xs font-semibold text-slate-500 border-t border-slate-100 pt-3">
               <Calendar size={14} />
               <span>{new Date(order.createdAt).toLocaleString()}</span>
             </div>
@@ -207,6 +253,64 @@ export default function CustomerOrdersPage() {
     }
   }, [customer]);
 
+  const tableHeads = [
+    {
+      key: "orderNo",
+      Title: "Order ID",
+      render: (row) => <span className="font-mono text-xs font-bold text-slate-700">{row.orderNo || `#${row.id.slice(0, 8)}`}</span>,
+      width: 200,
+    },
+    {
+      key: "createdAt",
+      Title: "Date",
+      render: (row) => <span className="text-slate-600 text-xs font-semibold">{new Date(row.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>,
+      width: 150,
+    },
+    {
+      key: "status",
+      Title: "Status",
+      render: (row) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+            row.status === "DELIVERED"
+              ? "bg-emerald-100 text-emerald-700"
+              : row.status === "SHIPPED"
+              ? "bg-blue-100 text-blue-700"
+              : row.status === "APPROVED"
+              ? "bg-medical-blue-100 text-medical-blue-700"
+              : row.status === "CANCELLED" || row.status === "REJECTED"
+              ? "bg-rose-100 text-rose-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
+        >
+          {row.status}
+        </span>
+      ),
+      width: 150,
+    },
+    {
+      key: "totalAmount",
+      Title: "Total",
+      render: (row) => <span className="font-black text-slate-900">৳{Number(row.totalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>,
+      width: 150,
+    },
+    {
+      key: "action",
+      Title: "Action",
+      render: (row) => (
+        <button 
+          onClick={() => setSelectedOrder(row)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-medical-blue-50 hover:bg-medical-blue-100 text-medical-blue-700 text-xs font-bold rounded-lg transition-colors border border-medical-blue-100"
+        >
+          <Eye size={14} />
+          View
+        </button>
+      ),
+      width: 120,
+      sortable: false,
+    },
+  ];
+
   if (loadingCustomer) {
     return (
       <div className="h-96 flex flex-col items-center justify-center font-sans">
@@ -237,56 +341,11 @@ export default function CustomerOrdersPage() {
             <span className="text-slate-400 text-xs font-bold">Retrieving order database...</span>
           </div>
         ) : orders.length > 0 ? (
-          <div className="overflow-x-auto rounded-2xl border border-slate-200">
-            <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-slate-50 text-slate-500">
-                <tr>
-                  <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">Order ID</th>
-                  <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-right">Total</th>
-                  <th className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-6 py-4 font-mono text-xs font-bold text-slate-700">
-                      {order.orderNo || `#${order.id.slice(0, 8)}`}
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 text-xs font-semibold">
-                      {new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          order.status === "DELIVERED"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : order.status === "CANCELLED"
-                            ? "bg-rose-100 text-rose-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right font-black text-slate-900">
-                      ৳{Number(order.totalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <button 
-                        onClick={() => setSelectedOrder(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-medical-blue-50 hover:bg-medical-blue-100 text-medical-blue-700 text-xs font-bold rounded-lg transition-colors border border-medical-blue-100"
-                      >
-                        <Eye size={14} />
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table 
+            TableHeads={tableHeads} 
+            TableRows={orders} 
+            wrapperClass="w-full"
+          />
         ) : (
           <div className="flex flex-col items-center justify-center text-center py-20 border border-dashed border-slate-200 rounded-3xl">
             <ShoppingBag className="w-12 h-12 text-slate-200 mb-4" />

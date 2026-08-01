@@ -13,7 +13,7 @@ export function WhyChooseUs() {
       <Container>
         <div className="text-center max-w-2xl mx-auto mb-12">
           <Typography variant="muted" className="font-bold tracking-widest uppercase text-primary mb-2">Our Promise</Typography>
-          <Typography variant="h2">Why Choose PremiumStore</Typography>
+          <Typography variant="h2">Why Choose GADGETSBD</Typography>
           <Typography variant="muted" className="mt-4 text-lg">
             We deliver not just products, but a seamless, secure, and premium shopping experience from start to finish.
           </Typography>

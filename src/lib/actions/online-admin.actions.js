@@ -44,7 +44,7 @@ export async function getPendingOrdersCountAction() {
 
 export async function approveOnlineOrderAction(orderId) {
   try {
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Fetch order details with its items
       const order = await tx.onlineOrder.findUnique({
         where: { id: orderId },
@@ -151,20 +151,29 @@ export async function approveOnlineOrderAction(orderId) {
         }
       });
 
-      // 6. Revalidate all cache paths so the dashboard updates immediately
-      revalidatePath("/sales");
-      revalidatePath("/products");
-      revalidatePath("/dashboard");
-      revalidatePath("/reports");
-      revalidatePath("/customers");
-      revalidatePath("/online-orders");
-
       return {
-        success: true,
         invoiceNo,
         orderNo: updatedOrder.orderNo
       };
+    },
+    {
+      maxWait: 5000,
+      timeout: 10000
     });
+
+    // 6. Revalidate all cache paths so the dashboard updates immediately
+    revalidatePath("/sales");
+    revalidatePath("/products");
+    revalidatePath("/dashboard");
+    revalidatePath("/reports");
+    revalidatePath("/customers");
+    revalidatePath("/online-orders");
+
+    return {
+      success: true,
+      invoiceNo: result.invoiceNo,
+      orderNo: result.orderNo
+    };
   } catch (error) {
     console.error("Error approving online order:", error);
     throw new Error(error.message || "Failed to approve online order");
@@ -252,5 +261,36 @@ export async function updateStorefrontSettingsAction(payload) {
   } catch (error) {
     console.error("Failed to update storefront settings:", error);
     throw new Error(error.message || "Failed to update storefront settings");
+  }
+}
+
+export async function updateOrderStatusAction(orderId, newStatus) {
+  try {
+    const order = await prisma.onlineOrder.findUnique({
+      where: { id: orderId }
+    });
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    // You can add logic to restrict which statuses can be changed to which here if needed
+    // For now, we allow changing to SHIPPED or DELIVERED
+
+    const updatedOrder = await prisma.onlineOrder.update({
+      where: { id: orderId },
+      data: {
+        status: newStatus
+      }
+    });
+
+    revalidatePath("/online-orders");
+    return {
+      success: true,
+      orderNo: updatedOrder.orderNo,
+      status: updatedOrder.status
+    };
+  } catch (error) {
+    throw new Error(error.message || "Failed to update order status");
   }
 }

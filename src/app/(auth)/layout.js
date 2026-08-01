@@ -50,7 +50,7 @@ export default function AuthLayout({ children }) {
             transition={{ duration: 0.8 }}
           >
             <Typography variant="h1" className="text-5xl lg:text-7xl font-bold tracking-tighter mb-6">
-              Premium<span className="text-primary">Store</span>
+              GADGETS<span className="text-primary">BD</span>
             </Typography>
             <Typography variant="h3" className="font-light opacity-80 leading-relaxed max-w-md">
               Elevate your digital lifestyle with meticulously curated technology and unparalleled design.
