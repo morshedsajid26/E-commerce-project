@@ -3,8 +3,17 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Typography } from "@/components/atoms/typography";
+import { SiApple, SiSony, SiBose, SiSennheiser, SiJbl, SiSamsung, SiLogitech } from "react-icons/si";
 
-const brands = ["Apple", "Sony", "Bose", "Sennheiser", "Bang & Olufsen", "Bowers & Wilkins"];
+const brands = [
+  { name: "Apple", Icon: SiApple },
+  { name: "Sony", Icon: SiSony },
+  { name: "Bose", Icon: SiBose },
+  { name: "Sennheiser", Icon: SiSennheiser },
+  { name: "JBL", Icon: SiJbl },
+  { name: "Samsung", Icon: SiSamsung },
+  { name: "Logitech", Icon: SiLogitech },
+];
 
 export function TrustedBrands() {
   return (
@@ -19,16 +28,18 @@ export function TrustedBrands() {
       </Typography>
       
       {/* Vercel-style fading edges for marquee */}
-      <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
-        <div className="flex w-max min-w-full justify-center gap-12 px-12 md:gap-24 md:px-24">
-          {brands.map((brand, i) => (
-            <div key={i} className="flex items-center justify-center">
-              <span className="text-xl font-bold text-muted-foreground/60 select-none grayscale transition-all hover:grayscale-0 hover:text-foreground">
-                {brand}
-              </span>
+      <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] py-4">
+        <motion.div 
+          className="flex w-max gap-16 md:gap-32 items-center pl-16 md:pl-32"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        >
+          {[...brands, ...brands, ...brands, ...brands].map((brand, i) => (
+            <div key={i} className="flex items-center justify-center group" title={brand.name}>
+              <brand.Icon className="text-4xl md:text-5xl text-muted-foreground/40 select-none grayscale transition-all duration-300 group-hover:grayscale-0 group-hover:text-foreground group-hover:scale-110" />
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );

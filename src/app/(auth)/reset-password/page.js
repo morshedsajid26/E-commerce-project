@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -10,6 +11,7 @@ import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { toast } from "sonner";
 import { LockKeyhole } from "lucide-react";
+import { resetPasswordAction } from "@/lib/actions/auth.actions";
 
 const schema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters").regex(/[A-Z]/, "Must contain an uppercase letter").regex(/[0-9]/, "Must contain a number"),
@@ -19,18 +21,35 @@ const schema = z.object({
   path: ["confirmPassword"],
 });
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const token = searchParams.get("token");
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(schema),
   });
 
   const onSubmit = async (data) => {
-    toast.loading("Resetting password...");
-    await new Promise(r => setTimeout(r, 1500));
-    toast.dismiss();
-    toast.success("Password reset successfully! You can now log in.");
-    router.push("/login");
+    if (!email || !token) {
+      toast.error("Invalid or missing reset token. Please request a new one.");
+      router.push("/forgot-password");
+      return;
+    }
+    
+    try {
+      toast.loading("Resetting password...");
+      const result = await resetPasswordAction(email, token, data.password);
+      toast.dismiss();
+      if (result.success) {
+        toast.success("Password reset successfully! You can now log in.");
+        router.push("/login");
+      }
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.message || "Failed to reset password.");
+    }
   };
 
   return (
@@ -73,5 +92,13 @@ export default function ResetPasswordPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

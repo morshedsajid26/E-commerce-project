@@ -117,6 +117,7 @@ model OnlineCustomer {
   name          String
   phone         String         @unique
   password      String
+  profilePicture String?       @db.Text
   address       String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt

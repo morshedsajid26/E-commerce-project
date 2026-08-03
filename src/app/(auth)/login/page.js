@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -21,6 +21,9 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
+  
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(loginSchema),
   });
@@ -35,7 +38,11 @@ export default function LoginPage() {
       if (user.type === "admin") {
         router.push("/dashboard");
       } else {
-        router.push("/profile");
+        if (redirectUrl) {
+          router.push(redirectUrl);
+        } else {
+          router.push("/profile");
+        }
       }
     }
   };

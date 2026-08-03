@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/store';
+import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/organisms/navbar';
 import { Sidebar } from '@/components/organisms/sidebar';
 import { CartDrawer } from '@/components/organisms/cart-drawer';
@@ -32,10 +33,50 @@ export default function CheckoutPage() {
     city: '',
     notes: ''
   });
+  const [couponCode, setCouponCode] = useState('');
+  const [discount, setDiscount] = useState(0);
+
+  const { user, loading } = useAuth();
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState(-1); // -1 means "New Address"
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login?redirect=/checkout');
+    } else if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || '',
+        phone: user.phone || user.identifier || '',
+        email: user.email || ''
+      }));
+
+      if (user.address) {
+        try {
+          const parsed = JSON.parse(user.address);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSavedAddresses(parsed);
+            setSelectedAddressIndex(0);
+            setFormData(prev => ({ ...prev, address: parsed[0] }));
+          } else if (typeof user.address === 'string' && user.address.trim() && user.address !== '[]') {
+            setSavedAddresses([user.address]);
+            setSelectedAddressIndex(0);
+            setFormData(prev => ({ ...prev, address: user.address }));
+          }
+        } catch (e) {
+          if (user.address && user.address !== '[]') {
+            setSavedAddresses([user.address]);
+            setSelectedAddressIndex(0);
+            setFormData(prev => ({ ...prev, address: user.address }));
+          }
+        }
+      }
+    }
+  }, [user, loading, router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -48,7 +89,23 @@ export default function CheckoutPage() {
 
   const deliveryCharge = 60; // Fixed for now
   const subtotal = calculateSubtotal();
-  const total = subtotal + deliveryCharge;
+  const total = subtotal + deliveryCharge - discount;
+
+  const handleApplyCoupon = () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+    // Demo logic for UI
+    if (couponCode.toUpperCase() === 'DISCOUNT10') {
+      const discountAmount = calculateSubtotal() * 0.1;
+      setDiscount(discountAmount);
+      toast.success("Coupon applied successfully!");
+    } else {
+      toast.error("Invalid coupon code");
+      setDiscount(0);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -171,23 +228,54 @@ export default function CheckoutPage() {
                       />
                     </div>
                     
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-medium text-slate-700">Street Address *</label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 pt-3 pointer-events-none">
-                          <MapPin className="h-5 w-5 text-slate-400" />
+                    {savedAddresses.length > 0 ? (
+                      <>
+                        <div className="space-y-2 md:col-span-2 mb-2">
+                          <label className="text-sm font-medium text-slate-700">Select Delivery Address *</label>
+                          <select 
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 px-4 text-sm focus:border-blue-500 outline-none"
+                            value={selectedAddressIndex}
+                            onChange={(e) => {
+                              const idx = Number(e.target.value);
+                              setSelectedAddressIndex(idx);
+                              setFormData(prev => ({ ...prev, address: savedAddresses[idx] }));
+                            }}
+                          >
+                            {savedAddresses.map((addr, idx) => (
+                              <option key={idx} value={idx}>{addr}</option>
+                            ))}
+                          </select>
                         </div>
-                        <textarea 
-                          name="address" 
-                          required 
-                          rows={2}
-                          value={formData.address} 
-                          onChange={handleInputChange}
-                          className="pl-10 w-full rounded-xl border border-slate-200 bg-slate-50 py-3 px-4 text-sm focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all outline-none resize-none" 
-                          placeholder="House, Road, Block, Area"
-                        />
+                        
+                        <div className="space-y-2 md:col-span-2">
+                          <label className="text-sm font-medium text-slate-700">Selected Address Details</label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 pt-3 pointer-events-none">
+                              <MapPin className="h-5 w-5 text-slate-400" />
+                            </div>
+                            <textarea 
+                              name="address" 
+                              required 
+                              rows={2}
+                              value={formData.address} 
+                              readOnly
+                              disabled
+                              className="pl-10 w-full rounded-xl border border-slate-200 py-3 px-4 text-sm bg-slate-100 text-slate-600 transition-all outline-none resize-none cursor-not-allowed" 
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm font-medium text-slate-700">Delivery Address *</label>
+                        <div className="p-4 border border-amber-200 bg-amber-50 rounded-xl text-sm text-amber-800 flex flex-col items-center justify-center gap-3">
+                          <p>You don't have any saved address.</p>
+                          <Link href="/profile" className="bg-amber-100 hover:bg-amber-200 text-amber-900 px-4 py-2 rounded-lg font-medium transition-colors">
+                            Add Address in Profile
+                          </Link>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-sm font-medium text-slate-700">City *</label>
@@ -249,7 +337,27 @@ export default function CheckoutPage() {
                     ))}
                   </div>
                   
-                  <div className="space-y-3 pt-4 border-t border-slate-100 text-sm">
+                  <div className="mt-6 pt-6 border-t border-slate-100">
+                    <label className="text-sm font-medium text-slate-700 mb-2 block">Have a coupon code?</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder="Enter code (e.g. DISCOUNT10)"
+                        className="flex-1 rounded-xl border border-slate-200 bg-slate-50 py-2.5 px-4 text-sm focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 pt-6 mt-6 border-t border-slate-100 text-sm">
                     <div className="flex justify-between text-slate-600">
                       <span>Subtotal</span>
                       <span className="font-medium text-slate-900">৳ {subtotal.toLocaleString()}</span>
@@ -258,6 +366,12 @@ export default function CheckoutPage() {
                       <span>Delivery Charge</span>
                       <span className="font-medium text-slate-900">৳ {deliveryCharge.toLocaleString()}</span>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium">
+                        <span>Discount ({couponCode})</span>
+                        <span>- ৳ {discount.toLocaleString()}</span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="flex justify-between items-center pt-4 mt-4 border-t border-slate-100">

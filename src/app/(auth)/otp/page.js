@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Typography } from "@/components/atoms/typography";
 import { Button } from "@/components/atoms/button";
@@ -8,10 +9,13 @@ import { OtpInput } from "@/components/molecules/otp-input";
 import { toast } from "sonner";
 import { MailCheck } from "lucide-react";
 
-export default function OtpPage() {
+import { verifyResetOtpAction } from "@/lib/actions/auth.actions";
+
+function OtpPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const context = searchParams.get("context"); // "reset" or undefined
+  const email = searchParams.get("email");
   const [otp, setOtp] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -21,15 +25,32 @@ export default function OtpPage() {
       return;
     }
     
-    setIsSubmitting(true);
-    toast.loading("Verifying code...");
-    await new Promise(r => setTimeout(r, 1500));
-    toast.dismiss();
-    
     if (context === "reset") {
-      toast.success("Code verified! Please set a new password.");
-      router.push("/reset-password");
+      if (!email) {
+        toast.error("Email is missing. Please try again.");
+        router.push("/forgot-password");
+        return;
+      }
+      setIsSubmitting(true);
+      toast.loading("Verifying code...");
+      try {
+        const result = await verifyResetOtpAction(email, otp);
+        toast.dismiss();
+        if (result.success) {
+          toast.success("Code verified! Please set a new password.");
+          router.push(`/reset-password?email=${encodeURIComponent(email)}&token=${encodeURIComponent(result.resetToken)}`);
+        }
+      } catch (error) {
+        toast.dismiss();
+        setIsSubmitting(false);
+        toast.error(error.message || "Failed to verify code");
+      }
     } else {
+      setIsSubmitting(true);
+      toast.loading("Verifying code...");
+      // TODO: implement email verification logic here
+      await new Promise(r => setTimeout(r, 1500));
+      toast.dismiss();
       toast.success("Email verified successfully! Welcome to GADGETSBD.");
       router.push("/");
     }
@@ -68,5 +89,13 @@ export default function OtpPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function OtpPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OtpPageContent />
+    </Suspense>
   );
 }

@@ -33,8 +33,8 @@ export async function sendOtpEmail(toEmail, otpCode) {
         <!-- Header -->
         <div style="background-color: #0284c7; padding: 30px; text-align: center;">
           <div style="display: inline-block; width: 40px; height: 40px; background-color: rgba(255,255,255,0.2); border-radius: 10px; line-height: 40px; color: #ffffff; font-weight: 900; font-size: 20px; margin-bottom: 10px;">S</div>
-          <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0; letter-spacing: 0.5px;">S&S Pharmacy</h1>
-          <p style="color: #e0f2fe; font-size: 12px; margin: 5px 0 0 0; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Smart Pharmacy Management</p>
+          <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0; letter-spacing: 0.5px;">GADGETS BD</h1>
+          <p style="color: #e0f2fe; font-size: 12px; margin: 5px 0 0 0; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Smart Gadgets Website</p>
         </div>
         
         <!-- Body Content -->

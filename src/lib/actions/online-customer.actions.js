@@ -36,7 +36,7 @@ export async function registerCustomerAction(name, phone, password, address = nu
   }
 }
 
-export async function updateCustomerProfileAction(name, address) {
+export async function updateCustomerProfileAction(name, address, profilePicture = null) {
   try {
     const current = await getCurrentCustomer();
     if (!current) {
@@ -58,12 +58,18 @@ export async function updateCustomerProfileAction(name, address) {
       serializedAddress = JSON.stringify([]);
     }
 
+    const updateData = {
+      name: name.trim(),
+      address: serializedAddress
+    };
+
+    if (profilePicture !== null) {
+      updateData.profilePicture = profilePicture;
+    }
+
     const updated = await prisma.onlineCustomer.update({
       where: { id: current.id },
-      data: {
-        name: name.trim(),
-        address: serializedAddress
-      }
+      data: updateData
     });
 
     // Re-encrypt the customer session cookie with the new profile data
@@ -91,7 +97,8 @@ export async function updateCustomerProfileAction(name, address) {
         id: updated.id,
         name: updated.name,
         phone: updated.phone,
-        address: updated.address
+        address: updated.address,
+        profilePicture: updated.profilePicture
       }
     };
   } catch (error) {

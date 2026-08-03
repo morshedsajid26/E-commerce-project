@@ -89,6 +89,7 @@ export async function getCurrentUser() {
           name: true,
           phone: true,
           address: true,
+          profilePicture: true,
         }
       });
       if (customer) return { ...customer, role: "customer", type: "customer" };

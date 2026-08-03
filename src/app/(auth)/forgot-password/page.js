@@ -12,6 +12,8 @@ import { Input } from "@/components/atoms/input";
 import { toast } from "sonner";
 import { KeyRound } from "lucide-react";
 
+import { sendResetOtpAction } from "@/lib/actions/auth.actions";
+
 const schema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
@@ -23,11 +25,16 @@ export default function ForgotPasswordPage() {
   });
 
   const onSubmit = async (data) => {
-    toast.loading("Sending recovery email...");
-    await new Promise(r => setTimeout(r, 1200));
-    toast.dismiss();
-    toast.success("Recovery code sent to your email.");
-    router.push("/otp?context=reset");
+    try {
+      toast.loading("Sending recovery email...");
+      await sendResetOtpAction(data.email);
+      toast.dismiss();
+      toast.success("Recovery code sent to your email.");
+      router.push(`/otp?context=reset&email=${encodeURIComponent(data.email)}`);
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.message || "Failed to send reset code.");
+    }
   };
 
   return (

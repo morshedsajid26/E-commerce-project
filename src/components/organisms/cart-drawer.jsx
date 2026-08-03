@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useAppStore } from "@/store";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import {
   Sheet,
   SheetContent,
@@ -19,6 +21,8 @@ import { Typography } from "@/components/atoms/typography";
 
 export function CartDrawer() {
   const { isCartOpen, setCartOpen, cart, updateCartQuantity, removeFromCart } = useAppStore();
+  const { user } = useAuth();
+  const router = useRouter();
 
   const subtotal = cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
 
@@ -117,14 +121,19 @@ export function CartDrawer() {
                 <span className="text-primary">৳{subtotal.toFixed(2)}</span>
               </div>
             </div>
-            <Button asChild className="w-full h-14 shadow-premium rounded-2xl text-base group relative overflow-hidden" size="lg">
-              <Link href="/checkout" onClick={() => setCartOpen(false)}>
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Proceed to Checkout
-                  <ShoppingCart className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-                <div className="absolute inset-0 h-full w-full bg-primary/10 transition-transform group-hover:scale-105 duration-300" />
-              </Link>
+            <Button onClick={() => {
+              setCartOpen(false);
+              if (user) {
+                router.push('/checkout');
+              } else {
+                router.push('/login?redirect=/checkout');
+              }
+            }} className="w-full h-14 shadow-premium rounded-2xl text-base group relative overflow-hidden" size="lg">
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Proceed to Checkout
+                <ShoppingCart className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+              <div className="absolute inset-0 h-full w-full bg-primary/10 transition-transform group-hover:scale-105 duration-300" />
             </Button>
           </div>
         )}
