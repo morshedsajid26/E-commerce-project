@@ -32,7 +32,7 @@ export function MobileNavigation() {
           <SheetHeader className="text-left">
             <SheetTitle className="text-xl font-bold tracking-tight">GADGETSBD</SheetTitle>
           </SheetHeader>
-          <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4">
+          <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4 pl-5">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>Categories</AccordionTrigger>
@@ -51,7 +51,7 @@ export function MobileNavigation() {
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Explore</AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-2">
+                <AccordionContent className="flex flex-col gap-2 ">
                   <Link href="/category/new" onClick={() => setMobileNavOpen(false)} className="text-muted-foreground hover:text-primary py-1 block">New Arrivals</Link>
                   <Link href="/category/bestsellers" onClick={() => setMobileNavOpen(false)} className="text-muted-foreground hover:text-primary py-1 block">Bestsellers</Link>
                   <Link href="/collections" onClick={() => setMobileNavOpen(false)} className="text-muted-foreground hover:text-primary py-1 block">Collections</Link>
