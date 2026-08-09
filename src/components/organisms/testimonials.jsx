@@ -6,8 +6,37 @@ import { Section } from "@/components/organisms/section";
 import { Typography } from "@/components/atoms/typography";
 import { TestimonialCard } from "@/components/molecules/testimonial-card";
 import { TESTIMONIALS } from "@/data/dummy/homepage-data";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 export function Testimonials() {
+  const settings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        }
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        }
+      }
+    ]
+  };
+
   return (
     <Section className="bg-muted/30 border-y overflow-hidden">
       <Container>
@@ -18,10 +47,14 @@ export function Testimonials() {
           </Typography>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((testimonial) => (
-            <TestimonialCard key={testimonial.id} testimonial={testimonial} />
-          ))}
+        <div className="pb-12">
+          <Slider {...settings}>
+            {TESTIMONIALS.map((testimonial) => (
+              <div key={testimonial.id} className="px-3 pb-10">
+                <TestimonialCard testimonial={testimonial} />
+              </div>
+            ))}
+          </Slider>
         </div>
       </Container>
     </Section>

@@ -596,5 +596,7 @@ export const FEATURES = [
 export const TESTIMONIALS = [
   { id: 't1', content: 'The product quality and the delivery speed is just amazing. Highly recommended for professionals.', name: 'Rafiqul Islam', role: 'Software Engineer' },
   { id: 't2', content: 'I have been buying enterprise gear from here for 3 years. The customer support is unmatched.', name: 'Nusrat Jahan', role: 'IT Manager' },
-  { id: 't3', content: 'Fastest delivery in Bangladesh. Got my MacBook within 24 hours in pristine condition.', name: 'Tanvir Ahmed', role: 'Content Creator' }
+  { id: 't3', content: 'Fastest delivery in Bangladesh. Got my MacBook within 24 hours in pristine condition.', name: 'Tanvir Ahmed', role: 'Content Creator' },
+  { id: 't4', content: 'Incredible selection of gadgets. I found exactly what I was looking for and the price was unbeatable.', name: 'Sadia Rahman', role: 'Graphic Designer' },
+  { id: 't5', content: 'Customer service went above and beyond when I had an issue. Will definitely shop here again.', name: 'Imran Khan', role: 'Entrepreneur' }
 ];

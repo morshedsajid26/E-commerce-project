@@ -14,6 +14,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ScrollArea } from "@/components/atoms/scroll-area";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/atoms/button";
+import { FEATURED_CATEGORIES } from "@/data/dummy/homepage-data";
 
 export function MobileNavigation() {
   const isMobileNavOpen = useAppStore((state) => state.isMobileNavOpen);
@@ -36,17 +37,24 @@ export function MobileNavigation() {
               <AccordionItem value="item-1">
                 <AccordionTrigger>Categories</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2">
-                  <Link href="/category/men" className="text-muted-foreground hover:text-primary py-1 block">Men's Fashion</Link>
-                  <Link href="/category/women" className="text-muted-foreground hover:text-primary py-1 block">Women's Fashion</Link>
-                  <Link href="/category/kids" className="text-muted-foreground hover:text-primary py-1 block">Kids' Apparel</Link>
+                  {FEATURED_CATEGORIES.map((category) => (
+                    <Link 
+                      key={category.id} 
+                      href={`/category/${category.title.toLowerCase()}`} 
+                      onClick={() => setMobileNavOpen(false)}
+                      className="text-muted-foreground hover:text-primary py-1 block"
+                    >
+                      {category.title}
+                    </Link>
+                  ))}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Explore</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2">
-                  <Link href="/category/new" className="text-muted-foreground hover:text-primary py-1 block">New Arrivals</Link>
-                  <Link href="/category/bestsellers" className="text-muted-foreground hover:text-primary py-1 block">Bestsellers</Link>
-                  <Link href="/collections" className="text-muted-foreground hover:text-primary py-1 block">Collections</Link>
+                  <Link href="/category/new" onClick={() => setMobileNavOpen(false)} className="text-muted-foreground hover:text-primary py-1 block">New Arrivals</Link>
+                  <Link href="/category/bestsellers" onClick={() => setMobileNavOpen(false)} className="text-muted-foreground hover:text-primary py-1 block">Bestsellers</Link>
+                  <Link href="/collections" onClick={() => setMobileNavOpen(false)} className="text-muted-foreground hover:text-primary py-1 block">Collections</Link>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
